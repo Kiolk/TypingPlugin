@@ -1,0 +1,52 @@
+<idea-plugin>
+    <id>com.github.kiolk.typingplugin</id>
+    <name>Typing Training</name>
+    <vendor email="tyteishi@gmail.com" url="https://github.com/Kiolk">Yauheni Slizh</vendor>
+
+    <description><![CDATA[
+      Master the art of coding at the speed of thought. <br><br>
+
+      While many developers focus on learning new frameworks and languages, the fundamental skill of touch typing is often overlooked.
+      Efficient typing isn't just about speed; it's about reducing cognitive load. As Jeff Atwood (Coding Horror) puts it,
+      "A programmer who can't type is like a writer who can't spell." When your fingers move automatically, your brain is free
+      to focus on logic, architecture, and problem-solving. <br><br>
+
+      This plugin brings deliberate typing practice directly into your IDE, allowing you to train on the very code you work with every day. <br><br>
+
+      <b>Key Benefits:</b>
+      <ul>
+        <li><b>Real-World Practice:</b> Type entire source files or specific selected blocks to build muscle memory for syntax and common patterns.</li>
+        <li><b>Code Familiarity:</b> Practice on your own project's codebase to internalize its structure while improving your speed.</li>
+        <li><b>Seamless Integration:</b> No need to switch to external apps. Start a session with a simple right-click in your editor.</li>
+        <li><b>Instant Feedback:</b> Real-time highlighting of errors and a detailed summary of your speed (WPM) and accuracy.</li>
+      </ul>
+
+      The plugin is under active development. I value your feedback and suggestions to make this the best tool for developer productivity.
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Initial release of the Typing Training plugin. This version contains the basic functionality including:
+      <ul>
+        <li>Right-click action to start typing any file or selection.</li>
+        <li>Ghost text overlay for guidance.</li>
+        <li>Real-time error highlighting.</li>
+        <li>Session summary with WPM and Accuracy statistics.</li>
+      </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Extensions will be added here -->
+    </extensions>
+
+    <actions>
+        <action id="com.github.kiolk.typingplugin.actions.StartTypingAction"
+                class="com.github.kiolk.typingplugin.actions.StartTypingAction"
+                text="Type This Class"
+                description="Start typing exercise using this file as a template">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>

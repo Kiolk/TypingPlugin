@@ -1,0 +1,25 @@
+# IntelliJ IDEA
+.idea/*
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/resources/META-INF/plugin.xml
+
+# Gradle
+.gradle/*
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Log files
+*.log
+kjluhi67,gmnbvc
+# macOS
+.DS_Store
+
+# Local properties
+local.properties
+
+# IntelliJ Platform Gradle Plugin (2.x) caches
+.intellijPlatform/
+IntelliJ_Typing_Plugin/*

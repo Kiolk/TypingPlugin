@@ -1,0 +1,15 @@
+<svg width="80" height="80" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="3" width="36" height="34" rx="5" fill="#4B5059" stroke="#2B2D30" stroke-width="2"/>
+
+    <path d="M4 35 Q4 37 7 37 L33 37 Q36 37 36 35" fill="none" stroke="#2B2D30" stroke-width="2" opacity="0.5"/>
+
+    <text x="20" y="25"
+        font-family="Menlo, Consolas, monospace"
+        font-size="20"
+        font-weight="bold"
+        fill="#FFFFFF"
+        text-anchor="middle"
+        dominant-baseline="middle">
+        {
+    </text>
+</svg>
