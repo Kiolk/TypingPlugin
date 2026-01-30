@@ -4,10 +4,7 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
-// Dynamic versioning from Git Tag or default to 1.0-SNAPSHOT
-version = providers.environmentVariable("GITHUB_REF_NAME")
-    .getOrElse("1.0.0")
-    .let { if (it.startsWith("v")) it.substring(1) else it }
+version = "1.0.1"
 
 group = "com.github.kiolk.typingplugin"
 
@@ -31,7 +28,9 @@ intellijPlatform {
         name = "Typing Training"
         ideaVersion {
             sinceBuild = "241"
-            untilBuild = ""
+            // Removing untilBuild entirely. 
+            // If not specified, the Marketplace assumes no upper limit for the current branch 
+            // or you can set it to a very high version like "999.*" if you want to be explicit.
         }
     }
 
