@@ -27,6 +27,21 @@ jobs:
         run: |
           echo "${{ secrets.CERTIFICATE_CHAIN }}" > certificateChain.pem
           echo "${{ secrets.PRIVATE_KEY }}" > privateKey.pem
+          
+          echo "--- Verification ---"
+          if [ -f "certificateChain.pem" ]; then
+            echo "certificateChain.pem created, size: $(stat -c%s certificateChain.pem) bytes"
+          else
+            echo "ERROR: certificateChain.pem was not created"
+          fi
+          
+          if [ -f "privateKey.pem" ]; then
+            echo "privateKey.pem created, size: $(stat -c%s privateKey.pem) bytes"
+            # Check if it starts with the expected header (safely)
+            head -n 1 privateKey.pem
+          else
+            echo "ERROR: privateKey.pem was not created"
+          fi
 
       - name: Build and Publish
         env:
@@ -34,4 +49,7 @@ jobs:
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
           CERTIFICATE_CHAIN_PATH: ${{ github.workspace }}/certificateChain.pem
           PRIVATE_KEY_PATH: ${{ github.workspace }}/privateKey.pem
-        run: ./gradlew publishPlugin
+        run: |
+          echo "Checking environment variables..."
+          if [ -z "$PRIVATE_KEY_PASSWORD" ]; then echo "PRIVATE_KEY_PASSWORD is empty"; else echo "PRIVATE_KEY_PASSWORD is set"; fi
+          ./gradlew publishPlugin

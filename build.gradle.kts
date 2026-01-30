@@ -4,7 +4,7 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
-version = "1.0.1"
+version = "1.0.2"
 
 group = "com.github.kiolk.typingplugin"
 
@@ -33,13 +33,22 @@ intellijPlatform {
     }
 
     signing {
-        certificateChainFile.set(file(providers.environmentVariable("CERTIFICATE_CHAIN_PATH").getOrElse("certificateChain.pem")))
-        privateKeyFile.set(file(providers.environmentVariable("PRIVATE_KEY_PATH").getOrElse("privateKey.pem")))
-        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
+        // Robust handling for both literal newlines and the "\n" string
+        val cert = providers.environmentVariable("CERTIFICATE_CHAIN")
+            .orElse(providers.gradleProperty("certificateChain"))
+            .map { it.replace("\\n", "\n") }
+        
+        val key = providers.environmentVariable("PRIVATE_KEY")
+            .orElse(providers.gradleProperty("privateKey"))
+            .map { it.replace("\\n", "\n") }
+
+        certificateChain.set(cert)
+        privateKey.set(key)
+        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD").orElse(providers.gradleProperty("privateKeyPassword")))
     }
 
     publishing {
-        token.set(providers.environmentVariable("PUBLISH_TOKEN"))
+        token.set(providers.environmentVariable("PUBLISH_TOKEN").orElse(providers.gradleProperty("publishToken")))
         channels.set(listOf(providers.environmentVariable("PUBLISH_CHANNEL").getOrElse("default")))
     }
 }
