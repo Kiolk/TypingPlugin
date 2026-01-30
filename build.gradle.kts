@@ -4,7 +4,7 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
-version = "1.0.2"
+version = "1.0.3"
 
 group = "com.github.kiolk.typingplugin"
 
@@ -28,7 +28,10 @@ intellijPlatform {
     pluginConfiguration {
         name = "Typing Training"
         ideaVersion {
-            sinceBuild = "243"
+            sinceBuild = "241"
+            untilBuild = "253.*"
+            // untilBuild is omitted to allow compatibility with all future versions 
+            // and avoid "made-up" build number rejections.
         }
     }
 
