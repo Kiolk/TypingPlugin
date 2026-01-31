@@ -1,19 +1,18 @@
 package com.github.kiolk.typingplugin.actions
 
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.testFramework.TestActionEvent
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Test
-import org.junit.Assert.*
 
 class StartTypingActionTest : BasePlatformTestCase() {
-
     @Test
     fun testActionIsDisabledWhenNoEditor() {
         val action = StartTypingAction()
-        val event = TestActionEvent.createTestEvent(action) { dataId ->
-            if (CommonDataKeys.EDITOR.name == dataId) null else null
-        }
+        val event =
+            TestActionEvent.createTestEvent(action) { dataId ->
+                if (CommonDataKeys.EDITOR.name == dataId) null else null
+            }
 
         action.update(event)
 
@@ -24,13 +23,14 @@ class StartTypingActionTest : BasePlatformTestCase() {
     fun testActionIsEnabledWhenEditorIsPresent() {
         myFixture.configureByText("Test.java", "public class Test {}")
         val action = StartTypingAction()
-        val event = TestActionEvent.createTestEvent(action) { dataId ->
-            when (dataId) {
-                CommonDataKeys.EDITOR.name -> myFixture.editor
-                CommonDataKeys.PROJECT.name -> project
-                else -> null
+        val event =
+            TestActionEvent.createTestEvent(action) { dataId ->
+                when (dataId) {
+                    CommonDataKeys.EDITOR.name -> myFixture.editor
+                    CommonDataKeys.PROJECT.name -> project
+                    else -> null
+                }
             }
-        }
 
         action.update(event)
 
@@ -42,13 +42,14 @@ class StartTypingActionTest : BasePlatformTestCase() {
     fun testActionTextChangesWhenTextIsSelected() {
         myFixture.configureByText("Test.java", "public class <selection>Test</selection> {}")
         val action = StartTypingAction()
-        val event = TestActionEvent.createTestEvent(action) { dataId ->
-            when (dataId) {
-                CommonDataKeys.EDITOR.name -> myFixture.editor
-                CommonDataKeys.PROJECT.name -> project
-                else -> null
+        val event =
+            TestActionEvent.createTestEvent(action) { dataId ->
+                when (dataId) {
+                    CommonDataKeys.EDITOR.name -> myFixture.editor
+                    CommonDataKeys.PROJECT.name -> project
+                    else -> null
+                }
             }
-        }
 
         action.update(event)
 
@@ -61,33 +62,35 @@ class StartTypingActionTest : BasePlatformTestCase() {
         val content = "public class Test {}"
         myFixture.configureByText("Test.java", content)
         val action = StartTypingAction()
-        
+
         val cleanedText = action.getCleanedText(myFixture.editor)
-        
+
         assertEquals(content, cleanedText)
     }
 
     @Test
     fun testGetCleanedTextReturnsTrimmedSelection() {
         // We align the selection start with the indentation we want to preserve/trim consistently.
-        val content = """
+        val content =
+            """
             public class Test {
                 public void main() {
             <selection>        System.out.println("Hello");
                     System.out.println("World");</selection>
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
 
         myFixture.configureByText("Test.java", content)
         val action = StartTypingAction()
-        
+
         val cleanedText = action.getCleanedText(myFixture.editor)
-        
-        val expected = """
+
+        val expected =
+            """
             System.out.println("Hello");
             System.out.println("World");
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(expected, cleanedText)
     }
 }

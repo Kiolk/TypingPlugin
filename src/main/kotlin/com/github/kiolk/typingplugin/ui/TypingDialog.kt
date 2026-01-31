@@ -8,11 +8,15 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Point
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JTextPane
+import javax.swing.SwingUtilities
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 
@@ -45,11 +49,37 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
     init {
         title = "Typing Training"
+        isModal = false
         init()
     }
 
+    override fun getDimensionServiceKey(): String? = "com.github.kiolk.typingplugin.ui.TypingDialog"
+
     override fun createCenterPanel(): JComponent {
         val panel = JPanel(BorderLayout())
+
+        val dragListener =
+            object : MouseAdapter() {
+                private var initialScreenClick: Point? = null
+                private var initialWindowLocation: Point? = null
+
+                override fun mousePressed(e: MouseEvent) {
+                    initialScreenClick = e.locationOnScreen
+                    initialWindowLocation = SwingUtilities.getWindowAncestor(panel)?.location
+                }
+
+                override fun mouseDragged(e: MouseEvent) {
+                    val window = SwingUtilities.getWindowAncestor(panel)
+                    if (window != null && initialScreenClick != null && initialWindowLocation != null) {
+                        val deltaX = e.locationOnScreen.x - initialScreenClick!!.x
+                        val deltaY = e.locationOnScreen.y - initialScreenClick!!.y
+                        window.setLocation(initialWindowLocation!!.x + deltaX, initialWindowLocation!!.y + deltaY)
+                    }
+                }
+            }
+
+        panel.addMouseListener(dragListener)
+        panel.addMouseMotionListener(dragListener)
 
         textPane.apply {
             text = sourceCode
@@ -86,9 +116,14 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                     }
                 },
             )
+            addMouseListener(dragListener)
+            addMouseMotionListener(dragListener)
         }
 
-        panel.add(JBScrollPane(textPane), BorderLayout.CENTER)
+        val scrollPane = JBScrollPane(textPane)
+        scrollPane.addMouseListener(dragListener)
+        scrollPane.addMouseMotionListener(dragListener)
+        panel.add(scrollPane, BorderLayout.CENTER)
         panel.preferredSize = java.awt.Dimension(800, 600)
 
         return panel

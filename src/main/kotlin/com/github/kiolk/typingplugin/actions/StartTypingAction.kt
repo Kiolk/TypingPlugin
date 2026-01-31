@@ -32,7 +32,10 @@ class StartTypingAction : AnAction() {
         return textToType.trimIndent()
     }
 
-    fun createTypingDialog(project: Project, text: String): TypingDialog {
+    fun createTypingDialog(
+        project: Project,
+        text: String,
+    ): TypingDialog {
         return TypingDialog(project, text)
     }
 
