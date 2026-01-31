@@ -4,13 +4,21 @@ import com.github.kiolk.typingplugin.ui.TypingDialog
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 
 class StartTypingAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 
-        // Check for selection
+        val cleanedText = getCleanedText(editor)
+
+        val typingDialog = createTypingDialog(project, cleanedText)
+        typingDialog.show()
+    }
+
+    fun getCleanedText(editor: Editor): String {
         val selectionModel = editor.selectionModel
         val textToType =
             if (selectionModel.hasSelection()) {
@@ -21,10 +29,11 @@ class StartTypingAction : AnAction() {
 
         // Clean up the selected text:
         // If we select a middle block, we might want to trim initial common indentation
-        val cleanedText = textToType.trimIndent()
+        return textToType.trimIndent()
+    }
 
-        val typingDialog = TypingDialog(project, cleanedText)
-        typingDialog.show()
+    fun createTypingDialog(project: Project, text: String): TypingDialog {
+        return TypingDialog(project, text)
     }
 
     override fun update(e: AnActionEvent) {

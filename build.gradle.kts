@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.22"
@@ -21,8 +23,13 @@ dependencies {
         intellijIdeaCommunity("2024.3")
         bundledPlugins("com.intellij.java")
         instrumentationTools()
+        testFramework(TestFrameworkType.Platform)
         zipSigner()
     }
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.2")
+    testImplementation("junit:junit:4.13.2")
 }
 
 intellijPlatform {
@@ -31,13 +38,10 @@ intellijPlatform {
         ideaVersion {
             sinceBuild = "241"
             untilBuild = "253.*"
-            // untilBuild is omitted to allow compatibility with all future versions
-            // and avoid "made-up" build number rejections.
         }
     }
 
     signing {
-        // Robust handling for both literal newlines and the "\n" string
         val cert =
             providers.environmentVariable("CERTIFICATE_CHAIN")
                 .orElse(providers.gradleProperty("certificateChain"))
@@ -67,4 +71,8 @@ ktlint {
     verbose.set(true)
     outputToConsole.set(true)
     coloredOutput.set(true)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
