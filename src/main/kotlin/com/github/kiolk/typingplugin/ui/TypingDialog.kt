@@ -17,7 +17,6 @@ import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 
 class TypingDialog(private val project: Project, private val sourceCode: String) : DialogWrapper(project) {
-    
     private var currentIndex = 0
     private var errorCount = 0
     private var startTime: Long = 0
@@ -25,20 +24,24 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
     private val skippedIndices = mutableSetOf<Int>()
 
     // Styles
-    private val ghostAttributes = SimpleAttributeSet().apply { 
-        StyleConstants.setForeground(this, Color.GRAY)
-    }
-    private val correctAttributes = SimpleAttributeSet().apply { 
-        StyleConstants.setForeground(this, Color.GREEN)
-    }
-    private val wrongAttributes = SimpleAttributeSet().apply { 
-        StyleConstants.setForeground(this, Color.RED)
-        StyleConstants.setUnderline(this, true)
-    }
-    private val cursorAttributes = SimpleAttributeSet().apply {
-        StyleConstants.setBackground(this, Color.LIGHT_GRAY)
-        StyleConstants.setForeground(this, Color.BLACK)
-    }
+    private val ghostAttributes =
+        SimpleAttributeSet().apply {
+            StyleConstants.setForeground(this, Color.GRAY)
+        }
+    private val correctAttributes =
+        SimpleAttributeSet().apply {
+            StyleConstants.setForeground(this, Color.GREEN)
+        }
+    private val wrongAttributes =
+        SimpleAttributeSet().apply {
+            StyleConstants.setForeground(this, Color.RED)
+            StyleConstants.setUnderline(this, true)
+        }
+    private val cursorAttributes =
+        SimpleAttributeSet().apply {
+            StyleConstants.setBackground(this, Color.LIGHT_GRAY)
+            StyleConstants.setForeground(this, Color.BLACK)
+        }
 
     init {
         title = "Typing Training"
@@ -47,13 +50,13 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
     override fun createCenterPanel(): JComponent {
         val panel = JPanel(BorderLayout())
-        
+
         textPane.apply {
             text = sourceCode
             isEditable = false
             background = EditorColorsManager.getInstance().globalScheme.defaultBackground
             font = EditorColorsManager.getInstance().globalScheme.getFont(EditorFontType.PLAIN)
-            
+
             StyleConstants.setBackground(ghostAttributes, background)
             StyleConstants.setBackground(correctAttributes, background)
             StyleConstants.setBackground(wrongAttributes, background)
@@ -62,30 +65,32 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             textPane.styledDocument.setCharacterAttributes(0, sourceCode.length, ghostAttributes, true)
             updateCursor()
 
-            addKeyListener(object : KeyAdapter() {
-                override fun keyTyped(e: KeyEvent) {
-                    if (e.keyChar.code < 32 || e.keyChar.code == 127) return 
-                    if (startTime == 0L) startTime = System.currentTimeMillis()
-                    handleTyping(e.keyChar)
-                }
+            addKeyListener(
+                object : KeyAdapter() {
+                    override fun keyTyped(e: KeyEvent) {
+                        if (e.keyChar.code < 32 || e.keyChar.code == 127) return
+                        if (startTime == 0L) startTime = System.currentTimeMillis()
+                        handleTyping(e.keyChar)
+                    }
 
-                override fun keyPressed(e: KeyEvent) {
-                    when (e.keyCode) {
-                        KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE, KeyEvent.VK_CLEAR -> {
-                            handleBackspace()
-                        }
-                        KeyEvent.VK_ENTER -> {
-                            if (startTime == 0L) startTime = System.currentTimeMillis()
-                            handleTyping('\n')
+                    override fun keyPressed(e: KeyEvent) {
+                        when (e.keyCode) {
+                            KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE, KeyEvent.VK_CLEAR -> {
+                                handleBackspace()
+                            }
+                            KeyEvent.VK_ENTER -> {
+                                if (startTime == 0L) startTime = System.currentTimeMillis()
+                                handleTyping('\n')
+                            }
                         }
                     }
-                }
-            })
+                },
+            )
         }
 
         panel.add(JBScrollPane(textPane), BorderLayout.CENTER)
         panel.preferredSize = java.awt.Dimension(800, 600)
-        
+
         return panel
     }
 
@@ -98,11 +103,11 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
         val targetChar = sourceCode[currentIndex]
         val isNewlineMatch = (targetChar == '\n' || targetChar == '\r') && (charTyped == '\n' || charTyped == '\r')
-        
+
         if (charTyped == targetChar || isNewlineMatch) {
             textPane.styledDocument.setCharacterAttributes(currentIndex, 1, correctAttributes, true)
-            
-            if (targetChar == '\r' && currentIndex + 1 < sourceCode.length && sourceCode[currentIndex+1] == '\n') {
+
+            if (targetChar == '\r' && currentIndex + 1 < sourceCode.length && sourceCode[currentIndex + 1] == '\n') {
                 currentIndex += 2
             } else {
                 currentIndex++
@@ -166,15 +171,16 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         if (currentIndex < sourceCode.length) {
             val attrs = textPane.styledDocument.getCharacterElement(currentIndex).attributes
             val isWrong = StyleConstants.getForeground(attrs) == Color.RED
-            
-            val style = if (isWrong) {
-                val s = SimpleAttributeSet(wrongAttributes)
-                StyleConstants.setBackground(s, Color.LIGHT_GRAY)
-                s
-            } else {
-                cursorAttributes
-            }
-            
+
+            val style =
+                if (isWrong) {
+                    val s = SimpleAttributeSet(wrongAttributes)
+                    StyleConstants.setBackground(s, Color.LIGHT_GRAY)
+                    s
+                } else {
+                    cursorAttributes
+                }
+
             textPane.styledDocument.setCharacterAttributes(currentIndex, 1, style, true)
             textPane.caretPosition = currentIndex
         }
@@ -186,11 +192,16 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         val totalTimeMinutes = totalTimeSeconds / 60.0
         val totalChars = sourceCode.length
         val wpm = if (totalTimeMinutes > 0) (totalChars / 5.0) / totalTimeMinutes else 0.0
-        val accuracy = if (totalChars + errorCount > 0) {
-            (totalChars.toDouble() / (totalChars + errorCount)) * 100
-        } else 0.0
+        val accuracy =
+            if (totalChars + errorCount > 0) {
+                (totalChars.toDouble() / (totalChars + errorCount)) * 100
+            } else {
+                0.0
+            }
 
-        val statsMessage = "Typing Finished!\n\nTime: ${"%.1f".format(totalTimeSeconds)}s\nWPM: ${"%.1f".format(wpm)}\nAccuracy: ${"%.1f".format(accuracy)}%\nErrors: $errorCount"
+        val statsMessage = "Typing Finished!\n\nTime: ${"%.1f".format(
+            totalTimeSeconds,
+        )}s\nWPM: ${"%.1f".format(wpm)}\nAccuracy: ${"%.1f".format(accuracy)}%\nErrors: $errorCount"
         Messages.showInfoMessage(project, statsMessage, "Session Summary")
     }
 }
