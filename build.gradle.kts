@@ -7,7 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
-version = "1.0.4"
+version = "1.0.5"
 
 group = "com.github.kiolk.typingplugin"
 
@@ -35,15 +35,9 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         name = "Typing Training"
-        description =
-            """
-            Improved stability and usability.
-            - Added ability to drag typing dialog to any position on the screen.
-            - Improved stability.
-            """.trimIndent()
         changeNotes =
             """
-            - Added ability to drag typing dialog to any position on the screen.
+            - Fixed incorrect representation of the time on the final statistic dialog.
             - Improved stability.
             """.trimIndent()
         ideaVersion {
