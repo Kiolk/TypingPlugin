@@ -78,6 +78,17 @@ class TypingDialogTest : BasePlatformTestCase() {
         assertEquals(Color.GREEN, StyleConstants.getForeground(attrsSpace))
     }
 
+    @Test
+    fun testFormatTime() {
+        assertEquals("0.0s", TypingDialog.formatTime(0.0))
+        assertEquals("30.0s", TypingDialog.formatTime(30.0))
+        assertEquals("59.9s", TypingDialog.formatTime(59.9))
+        assertEquals("1m 0.0s", TypingDialog.formatTime(60.0))
+        assertEquals("1m 5.4s", TypingDialog.formatTime(65.4))
+        assertEquals("2m 5.4s", TypingDialog.formatTime(125.4))
+        assertEquals("10m 0.0s", TypingDialog.formatTime(600.0))
+    }
+
     private fun simulateType(char: Char) {
         val keyEvent = KeyEvent(textPane, KeyEvent.KEY_TYPED, System.currentTimeMillis(), 0, KeyEvent.VK_UNDEFINED, char)
         textPane.keyListeners.forEach { it.keyTyped(keyEvent) }

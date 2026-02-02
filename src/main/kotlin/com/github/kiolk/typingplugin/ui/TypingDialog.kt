@@ -223,7 +223,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
     private fun showStatistics() {
         val endTime = System.currentTimeMillis()
-        val totalTimeSeconds = (endTime - startTime) / 1000.0
+        val totalTimeSeconds = if (startTime != 0L) (endTime - startTime) / 1000.0 else 0.0
         val totalTimeMinutes = totalTimeSeconds / 60.0
         val totalChars = sourceCode.length
         val wpm = if (totalTimeMinutes > 0) (totalChars / 5.0) / totalTimeMinutes else 0.0
@@ -234,9 +234,22 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                 0.0
             }
 
-        val statsMessage = "Typing Finished!\n\nTime: ${"%.1f".format(
-            totalTimeSeconds,
-        )}s\nWPM: ${"%.1f".format(wpm)}\nAccuracy: ${"%.1f".format(accuracy)}%\nErrors: $errorCount"
+        val timeFormatted = formatTime(totalTimeSeconds)
+
+        val statsMessage = "Typing Finished!\n\nTime: $timeFormatted\nWPM: ${"%.1f".format(
+            wpm,
+        )}\nAccuracy: ${"%.1f".format(accuracy)}%\nErrors: $errorCount"
         Messages.showInfoMessage(project, statsMessage, "Session Summary")
+    }
+
+    companion object {
+        fun formatTime(totalTimeSeconds: Double): String {
+            if (totalTimeSeconds >= 60) {
+                val minutes = totalTimeSeconds.toInt() / 60
+                val seconds = totalTimeSeconds % 60
+                return "${minutes}m ${"%.1f".format(seconds)}s"
+            }
+            return "${"%.1f".format(totalTimeSeconds)}s"
+        }
     }
 }
