@@ -35,6 +35,12 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         name = "Typing Training"
+        description =
+            """
+            Improved stability and usability.
+            - Added ability to drag typing dialog to any position on the screen.
+            - Improved stability.
+            """.trimIndent()
         changeNotes =
             """
             - Fixed incorrect representation of the time on the final statistic dialog.
