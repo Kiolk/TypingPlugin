@@ -1,10 +1,11 @@
 package com.github.kiolk.typingplugin.ui
 
+import com.github.kiolk.typingplugin.service.TypingService
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout
 import java.awt.Color
@@ -26,6 +27,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
     private var startTime: Long = 0
     private val textPane = JTextPane()
     private val skippedIndices = mutableSetOf<Int>()
+    private val log = logger<TypingDialog>()
 
     // Styles
     private val ghostAttributes =
@@ -51,6 +53,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         title = "Typing Training"
         isModal = false
         init()
+        log.info("TypingDialog initialized with source code length: ${sourceCode.length}")
     }
 
     override fun getDimensionServiceKey(): String? = "com.github.kiolk.typingplugin.ui.TypingDialog"
@@ -98,18 +101,26 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             addKeyListener(
                 object : KeyAdapter() {
                     override fun keyTyped(e: KeyEvent) {
+                        log.info("Key typed: '${e.keyChar}' (code: ${e.keyChar.code})")
                         if (e.keyChar.code < 32 || e.keyChar.code == 127) return
-                        if (startTime == 0L) startTime = System.currentTimeMillis()
+                        if (startTime == 0L) {
+                            startTime = System.currentTimeMillis()
+                            log.info("Session started at $startTime")
+                        }
                         handleTyping(e.keyChar)
                     }
 
                     override fun keyPressed(e: KeyEvent) {
+                        log.debug("Key pressed: code=${e.keyCode}")
                         when (e.keyCode) {
                             KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE, KeyEvent.VK_CLEAR -> {
                                 handleBackspace()
                             }
                             KeyEvent.VK_ENTER -> {
-                                if (startTime == 0L) startTime = System.currentTimeMillis()
+                                if (startTime == 0L) {
+                                    startTime = System.currentTimeMillis()
+                                    log.info("Session started at $startTime (via Enter)")
+                                }
                                 handleTyping('\n')
                             }
                         }
@@ -154,13 +165,15 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             updateCursor()
         } else {
             errorCount++
+            log.debug("Typing error at index $currentIndex: expected '$targetChar', got '$charTyped'. Total errors: $errorCount")
             val errorStyle = SimpleAttributeSet(wrongAttributes)
             StyleConstants.setBackground(errorStyle, Color.LIGHT_GRAY)
             textPane.styledDocument.setCharacterAttributes(currentIndex, 1, errorStyle, true)
         }
 
         if (currentIndex >= sourceCode.length) {
-            showStatistics()
+            log.info("Typing finished. Recording statistics.")
+            recordAndShowStatistics()
             close(OK_EXIT_CODE)
         }
     }
@@ -221,7 +234,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         }
     }
 
-    private fun showStatistics() {
+    private fun recordAndShowStatistics() {
         val endTime = System.currentTimeMillis()
         val totalTimeSeconds = if (startTime != 0L) (endTime - startTime) / 1000.0 else 0.0
         val totalTimeMinutes = totalTimeSeconds / 60.0
@@ -233,13 +246,25 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             } else {
                 0.0
             }
+        val epm = if (totalTimeMinutes > 0) errorCount / totalTimeMinutes else 0.0
+
+        val service = TypingService.getInstance(project)
+        service.addResult(wpm, epm, accuracy)
+
+        val results = service.getResults()
+        val latest = results.last()
+        log.info(
+            "Session Result: Attempt #${latest.attemptNumber}, WPM: ${"%.1f".format(
+                latest.wpm,
+            )}, EPM: ${"%.1f".format(latest.errorsPerMinute)}, Accuracy: ${"%.1f".format(latest.accuracy)}%",
+        )
 
         val timeFormatted = formatTime(totalTimeSeconds)
-
         val statsMessage = "Typing Finished!\n\nTime: $timeFormatted\nWPM: ${"%.1f".format(
             wpm,
         )}\nAccuracy: ${"%.1f".format(accuracy)}%\nErrors: $errorCount"
-        Messages.showInfoMessage(project, statsMessage, "Session Summary")
+
+        StatisticsDialog(project, results, statsMessage).show()
     }
 
     companion object {

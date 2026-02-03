@@ -7,7 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
-version = "1.0.5"
+version = "1.0.6"
 
 group = "com.github.kiolk.typingplugin"
 
@@ -26,6 +26,7 @@ dependencies {
         testFramework(TestFrameworkType.Platform)
         zipSigner()
     }
+    implementation("org.jfree:jfreechart:1.5.6")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.2")
@@ -37,8 +38,11 @@ intellijPlatform {
         name = "Typing Training"
         changeNotes =
             """
-            - Fixed incorrect representation of the time on the final statistic dialog.
-            - Improved stability.
+            - Added performance chart at the end of each session.
+            - Implemented persistent statistics across IDE sessions.
+            - Unified session summary and performance chart into a single dialog.
+            - Added detailed logging for typing events and errors.
+            - Improved chart visualization with whole number attempt axis.
             """.trimIndent()
         ideaVersion {
             sinceBuild = "241"
@@ -80,4 +84,10 @@ ktlint {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks {
+    buildSearchableOptions {
+        enabled = false
+    }
 }
