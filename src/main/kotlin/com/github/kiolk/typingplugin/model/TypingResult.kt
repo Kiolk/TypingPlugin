@@ -4,5 +4,5 @@ data class TypingResult(
     val attemptNumber: Int,
     val wpm: Double,
     val errorsPerMinute: Double,
-    val accuracy: Double
+    val accuracy: Double,
 )

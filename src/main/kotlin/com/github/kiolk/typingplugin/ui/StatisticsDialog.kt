@@ -24,9 +24,8 @@ import javax.swing.SwingConstants
 class StatisticsDialog(
     project: Project,
     private val results: List<TypingResult>,
-    private val currentResult: String
+    private val currentResult: String,
 ) : DialogWrapper(project) {
-
     init {
         title = "Session Summary & Performance"
         init()
@@ -40,22 +39,24 @@ class StatisticsDialog(
         statsPanel.layout = BoxLayout(statsPanel, BoxLayout.Y_AXIS)
         statsPanel.border = JBUI.Borders.empty(10)
 
-        val titleLabel = JBLabel("Typing Finished!", SwingConstants.CENTER).apply {
-            font = font.deriveFont(Font.BOLD, 16f)
-            alignmentX = JComponent.CENTER_ALIGNMENT
-        }
+        val titleLabel =
+            JBLabel("Typing Finished!", SwingConstants.CENTER).apply {
+                font = font.deriveFont(Font.BOLD, 16f)
+                alignmentX = JComponent.CENTER_ALIGNMENT
+            }
         statsPanel.add(titleLabel)
         statsPanel.add(JBUI.Panels.simplePanel(5, 5)) // Spacer
 
         currentResult.split("\n").forEach { line ->
             if (line.isNotBlank() && !line.contains("Finished")) {
-                val label = JBLabel(line, SwingConstants.CENTER).apply {
-                    alignmentX = JComponent.CENTER_ALIGNMENT
-                }
+                val label =
+                    JBLabel(line, SwingConstants.CENTER).apply {
+                        alignmentX = JComponent.CENTER_ALIGNMENT
+                    }
                 statsPanel.add(label)
             }
         }
-        
+
         mainPanel.add(statsPanel, BorderLayout.NORTH)
 
         // Chart setup
@@ -69,17 +70,19 @@ class StatisticsDialog(
             accuracySeries.add(result.attemptNumber, result.accuracy)
         }
 
-        val dataset = XYSeriesCollection().apply {
-            addSeries(wpmSeries)
-            addSeries(errorsSeries)
-        }
+        val dataset =
+            XYSeriesCollection().apply {
+                addSeries(wpmSeries)
+                addSeries(errorsSeries)
+            }
 
-        val chart = ChartFactory.createXYLineChart(
-            "", // Title inside chart removed as it's in the dialog
-            "Attempt",
-            "WPM / Errors",
-            dataset
-        )
+        val chart =
+            ChartFactory.createXYLineChart(
+                "",
+                "Attempt",
+                "WPM / Errors",
+                dataset,
+            )
 
         val plot = chart.plot as XYPlot
         val domainAxis = plot.domainAxis as NumberAxis

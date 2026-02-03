@@ -27,7 +27,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
     private var startTime: Long = 0
     private val textPane = JTextPane()
     private val skippedIndices = mutableSetOf<Int>()
-    private val LOG = logger<TypingDialog>()
+    private val log = logger<TypingDialog>()
 
     // Styles
     private val ghostAttributes =
@@ -53,7 +53,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         title = "Typing Training"
         isModal = false
         init()
-        LOG.info("TypingDialog initialized with source code length: ${sourceCode.length}")
+        log.info("TypingDialog initialized with source code length: ${sourceCode.length}")
     }
 
     override fun getDimensionServiceKey(): String? = "com.github.kiolk.typingplugin.ui.TypingDialog"
@@ -101,17 +101,17 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             addKeyListener(
                 object : KeyAdapter() {
                     override fun keyTyped(e: KeyEvent) {
-                        LOG.info("Key typed: '${e.keyChar}' (code: ${e.keyChar.code})")
+                        log.info("Key typed: '${e.keyChar}' (code: ${e.keyChar.code})")
                         if (e.keyChar.code < 32 || e.keyChar.code == 127) return
                         if (startTime == 0L) {
                             startTime = System.currentTimeMillis()
-                            LOG.info("Session started at $startTime")
+                            log.info("Session started at $startTime")
                         }
                         handleTyping(e.keyChar)
                     }
 
                     override fun keyPressed(e: KeyEvent) {
-                        LOG.debug("Key pressed: code=${e.keyCode}")
+                        log.debug("Key pressed: code=${e.keyCode}")
                         when (e.keyCode) {
                             KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE, KeyEvent.VK_CLEAR -> {
                                 handleBackspace()
@@ -119,7 +119,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                             KeyEvent.VK_ENTER -> {
                                 if (startTime == 0L) {
                                     startTime = System.currentTimeMillis()
-                                    LOG.info("Session started at $startTime (via Enter)")
+                                    log.info("Session started at $startTime (via Enter)")
                                 }
                                 handleTyping('\n')
                             }
@@ -165,14 +165,14 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             updateCursor()
         } else {
             errorCount++
-            LOG.debug("Typing error at index $currentIndex: expected '$targetChar', got '$charTyped'. Total errors: $errorCount")
+            log.debug("Typing error at index $currentIndex: expected '$targetChar', got '$charTyped'. Total errors: $errorCount")
             val errorStyle = SimpleAttributeSet(wrongAttributes)
             StyleConstants.setBackground(errorStyle, Color.LIGHT_GRAY)
             textPane.styledDocument.setCharacterAttributes(currentIndex, 1, errorStyle, true)
         }
 
         if (currentIndex >= sourceCode.length) {
-            LOG.info("Typing finished. Recording statistics.")
+            log.info("Typing finished. Recording statistics.")
             recordAndShowStatistics()
             close(OK_EXIT_CODE)
         }
@@ -250,10 +250,14 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
         val service = TypingService.getInstance(project)
         service.addResult(wpm, epm, accuracy)
-        
+
         val results = service.getResults()
         val latest = results.last()
-        LOG.info("Session Result: Attempt #${latest.attemptNumber}, WPM: ${"%.1f".format(latest.wpm)}, EPM: ${"%.1f".format(latest.errorsPerMinute)}, Accuracy: ${"%.1f".format(latest.accuracy)}%")
+        log.info(
+            "Session Result: Attempt #${latest.attemptNumber}, WPM: ${"%.1f".format(
+                latest.wpm,
+            )}, EPM: ${"%.1f".format(latest.errorsPerMinute)}, Accuracy: ${"%.1f".format(latest.accuracy)}%",
+        )
 
         val timeFormatted = formatTime(totalTimeSeconds)
         val statsMessage = "Typing Finished!\n\nTime: $timeFormatted\nWPM: ${"%.1f".format(
