@@ -3,8 +3,8 @@ package com.github.kiolk.typingplugin.service
 import com.github.kiolk.typingplugin.model.TypingResult
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 
@@ -17,7 +17,7 @@ class TypingService(private val project: Project) :
     PersistentStateComponent<TypingService.State> {
     data class State(
         var results: MutableList<TypingResult> = mutableListOf(),
-        var fontSize: Int = 14, // Default font size
+        var fontSize: Int = 14,
     )
 
     private var myState = State()
@@ -28,7 +28,14 @@ class TypingService(private val project: Project) :
         accuracy: Double,
     ) {
         val attemptNumber = myState.results.size + 1
-        myState.results.add(TypingResult(attemptNumber, wpm, errorsPerMinute, accuracy))
+        myState.results.add(
+            TypingResult(
+                attemptNumber,
+                wpm,
+                errorsPerMinute,
+                accuracy,
+            ),
+        )
     }
 
     fun getResults(): List<TypingResult> = myState.results.toList()
