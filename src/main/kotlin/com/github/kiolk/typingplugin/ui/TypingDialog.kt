@@ -11,6 +11,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Font
+import java.awt.GraphicsEnvironment
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.Toolkit
@@ -74,11 +75,13 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                 private var initialWindowLocation: Point? = null
 
                 override fun mousePressed(e: MouseEvent) {
+                    if (GraphicsEnvironment.isHeadless()) return
                     initialScreenClick = e.locationOnScreen
                     initialWindowLocation = SwingUtilities.getWindowAncestor(centerPanel)?.location
                 }
 
                 override fun mouseDragged(e: MouseEvent) {
+                    if (GraphicsEnvironment.isHeadless()) return
                     val window = SwingUtilities.getWindowAncestor(centerPanel)
                     if (window != null && initialScreenClick != null && initialWindowLocation != null) {
                         val deltaX = e.locationOnScreen.x - initialScreenClick!!.x
@@ -144,7 +147,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                     handleZoom(e)
                 } else {
                     // Pass to parent if not zooming
-                    parent.dispatchEvent(e)
+                    parent?.dispatchEvent(e)
                 }
             }
 
@@ -208,7 +211,12 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         val maxLineWidth = lines.maxOfOrNull { metrics.stringWidth(it) } ?: 0
         val totalHeight = lines.size * metrics.height
 
-        val screenSize = Toolkit.getDefaultToolkit().screenSize
+        val screenSize =
+            if (GraphicsEnvironment.isHeadless()) {
+                Dimension(800, 600)
+            } else {
+                Toolkit.getDefaultToolkit().screenSize
+            }
         val maxAvailableWidth = (screenSize.width * 0.9).toInt()
         val maxAvailableHeight = (screenSize.height * 0.9).toInt()
 
