@@ -17,6 +17,7 @@ class TypingService(private val project: Project) :
     PersistentStateComponent<TypingService.State> {
     data class State(
         var results: MutableList<TypingResult> = mutableListOf(),
+        var fontSize: Int = 14, // Default font size
     )
 
     private var myState = State()
@@ -31,6 +32,12 @@ class TypingService(private val project: Project) :
     }
 
     fun getResults(): List<TypingResult> = myState.results.toList()
+
+    fun getFontSize(): Int = myState.fontSize
+
+    fun setFontSize(size: Int) {
+        myState.fontSize = size
+    }
 
     override fun getState(): State = myState
 
