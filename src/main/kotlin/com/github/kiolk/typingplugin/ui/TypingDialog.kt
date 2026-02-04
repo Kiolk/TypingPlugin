@@ -9,7 +9,9 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Point
+import java.awt.Toolkit
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
@@ -20,6 +22,8 @@ import javax.swing.JTextPane
 import javax.swing.SwingUtilities
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
+import kotlin.math.max
+import kotlin.math.min
 
 class TypingDialog(private val project: Project, private val sourceCode: String) : DialogWrapper(project) {
     private var currentIndex = 0
@@ -56,7 +60,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         log.info("TypingDialog initialized with source code length: ${sourceCode.length}")
     }
 
-    override fun getDimensionServiceKey(): String? = "com.github.kiolk.typingplugin.ui.TypingDialog"
+    override fun getDimensionServiceKey(): String? = null // Disable saving dimension to allow auto-resize based on content
 
     override fun createCenterPanel(): JComponent {
         val panel = JPanel(BorderLayout())
@@ -135,7 +139,21 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         scrollPane.addMouseListener(dragListener)
         scrollPane.addMouseMotionListener(dragListener)
         panel.add(scrollPane, BorderLayout.CENTER)
-        panel.preferredSize = java.awt.Dimension(800, 600)
+        
+        // Dynamic size calculation
+        val metrics = textPane.getFontMetrics(textPane.font)
+        val lines = sourceCode.lines()
+        val maxLineWidth = lines.maxOfOrNull { metrics.stringWidth(it) } ?: 0
+        val totalHeight = lines.size * metrics.height
+
+        val screenSize = Toolkit.getDefaultToolkit().screenSize
+        val maxAvailableWidth = (screenSize.width * 0.8).toInt()
+        val maxAvailableHeight = (screenSize.height * 0.8).toInt()
+
+        val preferredWidth = min(max(maxLineWidth + 60, 400), maxAvailableWidth)
+        val preferredHeight = min(max(totalHeight + 60, 200), maxAvailableHeight)
+
+        panel.preferredSize = Dimension(preferredWidth, preferredHeight)
 
         return panel
     }
