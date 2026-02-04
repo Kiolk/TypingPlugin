@@ -7,7 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
-version = "1.0.6"
+version = "1.0.7"
 
 group = "com.github.kiolk.typingplugin"
 
@@ -36,14 +36,6 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         name = "Typing Training"
-        changeNotes =
-            """
-            - Added performance chart at the end of each session.
-            - Implemented persistent statistics across IDE sessions.
-            - Unified session summary and performance chart into a single dialog.
-            - Added detailed logging for typing events and errors.
-            - Improved chart visualization with whole number attempt axis.
-            """.trimIndent()
         ideaVersion {
             sinceBuild = "241"
             untilBuild = "253.*"

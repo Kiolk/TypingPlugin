@@ -11,6 +11,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Font
+import java.awt.GraphicsEnvironment
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.Toolkit
@@ -74,11 +75,13 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                 private var initialWindowLocation: Point? = null
 
                 override fun mousePressed(e: MouseEvent) {
+                    if (GraphicsEnvironment.isHeadless()) return
                     initialScreenClick = e.locationOnScreen
                     initialWindowLocation = SwingUtilities.getWindowAncestor(centerPanel)?.location
                 }
 
                 override fun mouseDragged(e: MouseEvent) {
+                    if (GraphicsEnvironment.isHeadless()) return
                     val window = SwingUtilities.getWindowAncestor(centerPanel)
                     if (window != null && initialScreenClick != null && initialWindowLocation != null) {
                         val deltaX = e.locationOnScreen.x - initialScreenClick!!.x
@@ -95,7 +98,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
             text = sourceCode
             isEditable = false
             background = EditorColorsManager.getInstance().globalScheme.defaultBackground
-            
+
             // Load saved font size or use default
             val savedSize = typingService.getFontSize()
             val baseFont = EditorColorsManager.getInstance().globalScheme.getFont(EditorFontType.PLAIN)
@@ -138,16 +141,16 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                     }
                 },
             )
-            
+
             addMouseWheelListener { e ->
                 if (e.isControlDown) {
                     handleZoom(e)
                 } else {
                     // Pass to parent if not zooming
-                    parent.dispatchEvent(e)
+                    parent?.dispatchEvent(e)
                 }
             }
-            
+
             addMouseListener(dragListener)
             addMouseMotionListener(dragListener)
         }
@@ -156,46 +159,46 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         scrollPane.addMouseListener(dragListener)
         scrollPane.addMouseMotionListener(dragListener)
         centerPanel.add(scrollPane, BorderLayout.CENTER)
-        
+
         updateWindowSize()
 
         return centerPanel
     }
-    
+
     private fun handleZoom(e: MouseWheelEvent) {
         val currentFont = textPane.font
         val newSize = if (e.wheelRotation < 0) currentFont.size + 1 else max(8, currentFont.size - 1)
-        
+
         if (newSize != currentFont.size) {
             textPane.font = Font(currentFont.name, currentFont.style, newSize)
-            
+
             // Persist the new font size
             typingService.setFontSize(newSize)
-            
+
             val window = SwingUtilities.getWindowAncestor(centerPanel)
             if (window != null) {
                 val oldSize = window.size
                 val oldLocation = window.location
-                
+
                 updateWindowSize()
-                
+
                 val newPreferredSize = centerPanel.preferredSize
                 val decorationWidth = oldSize.width - centerPanel.width
                 val decorationHeight = oldSize.height - centerPanel.height
-                
+
                 val newWidth = newPreferredSize.width + decorationWidth
                 val newHeight = newPreferredSize.height + decorationHeight
-                
+
                 window.setSize(newWidth, newHeight)
                 window.setLocation(
                     oldLocation.x - (newWidth - oldSize.width) / 2,
-                    oldLocation.y - (newHeight - oldSize.height) / 2
+                    oldLocation.y - (newHeight - oldSize.height) / 2,
                 )
-                
+
                 centerPanel.revalidate()
                 window.validate()
                 window.repaint()
-                
+
                 // Ensure cursor is still visible and has padding after zoom
                 updateCursor()
             }
@@ -208,7 +211,12 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         val maxLineWidth = lines.maxOfOrNull { metrics.stringWidth(it) } ?: 0
         val totalHeight = lines.size * metrics.height
 
-        val screenSize = Toolkit.getDefaultToolkit().screenSize
+        val screenSize =
+            if (GraphicsEnvironment.isHeadless()) {
+                Dimension(800, 600)
+            } else {
+                Toolkit.getDefaultToolkit().screenSize
+            }
         val maxAvailableWidth = (screenSize.width * 0.9).toInt()
         val maxAvailableHeight = (screenSize.height * 0.9).toInt()
 
@@ -309,7 +317,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
             textPane.styledDocument.setCharacterAttributes(currentIndex, 1, style, true)
             textPane.caretPosition = currentIndex
-            
+
             // Auto-scroll to keep cursor visible with padding of at least 3 characters
             try {
                 val rect = textPane.modelToView(currentIndex)
@@ -318,13 +326,14 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
                     // Calculate padding based on 3 widest characters ('W') and line height
                     val horizontalPadding = metrics.stringWidth("WWW")
                     val verticalPadding = metrics.height
-                    
-                    val paddedRect = Rectangle(
-                        rect.x - horizontalPadding,
-                        rect.y - verticalPadding,
-                        rect.width + 2 * horizontalPadding,
-                        rect.height + 2 * verticalPadding
-                    )
+
+                    val paddedRect =
+                        Rectangle(
+                            rect.x - horizontalPadding,
+                            rect.y - verticalPadding,
+                            rect.width + 2 * horizontalPadding,
+                            rect.height + 2 * verticalPadding,
+                        )
                     textPane.scrollRectToVisible(paddedRect)
                 }
             } catch (e: Exception) {
