@@ -25,12 +25,12 @@
     ]]></description>
 
     <change-notes><![CDATA[
-      Initial release of the Typing Training plugin. This version contains the basic functionality including:
       <ul>
-        <li>Right-click action to start typing any file or selection.</li>
-        <li>Ghost text overlay for guidance.</li>
-        <li>Real-time error highlighting.</li>
-        <li>Session summary with WPM and Accuracy statistics.</li>
+        <li><b>Fixed Persistent Statistics:</b> Resolved an issue where typing statistics were lost between IDE restarts.</li>
+        <li><b>Dynamic Window Resizing:</b> The typing dialog now automatically adjusts its size based on the text content, making better use of screen space.</li>
+        <li><b>Interactive Text Zooming:</b> Use <b>Ctrl + Scroll Wheel</b> to resize the text font. The dialog window will dynamically resize to fit the new text size.</li>
+        <li><b>Persistent Settings:</b> Your preferred font size is now saved across sessions and IDE restarts.</li>
+        <li><b>Smart Auto-Scrolling:</b> Improved cursor visibility with automatic scrolling that maintains a comfortable margin (at least 3 characters) from the window edges.</li>
       </ul>
     ]]></change-notes>
 
@@ -38,7 +38,7 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Extensions will be added here -->
+        <projectService serviceImplementation="com.github.kiolk.typingplugin.service.TypingService"/>
     </extensions>
 
     <actions>
