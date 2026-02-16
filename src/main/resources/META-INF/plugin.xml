@@ -37,7 +37,7 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Extensions will be added here -->
+        <projectService serviceImplementation="com.github.kiolk.typingplugin.service.TypingService"/>
     </extensions>
 
     <actions>
