@@ -22,4 +22,6 @@ local.properties
 
 # IntelliJ Platform Gradle Plugin (2.x) caches
 .intellijPlatform/
-IntelliJ_Typing_Plugin/*
+IntelliJ_Typing_Plugin/
+
+# AI Plans and Instructions
