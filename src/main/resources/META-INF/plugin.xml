@@ -38,7 +38,7 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="com.github.kiolk.typingplugin.service.TypingService"/>
+        <!-- Service is auto-discovered via @Service annotation -->
     </extensions>
 
     <actions>
