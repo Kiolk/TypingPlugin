@@ -2,9 +2,9 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.22"
-    id("org.jetbrains.intellij.platform") version "2.2.1"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.jetbrains.kotlin.jvm") version "2.4.20"
+    id("org.jetbrains.intellij.platform") version "2.19.0"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 version = "1.0.8"
@@ -22,7 +22,6 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity("2024.3")
         bundledPlugins("com.intellij.java")
-        instrumentationTools()
         testFramework(TestFrameworkType.Platform)
         zipSigner()
     }
@@ -38,7 +37,13 @@ intellijPlatform {
         name = "Typing Training"
         ideaVersion {
             sinceBuild = "241"
-            untilBuild = "253.*"
+            untilBuild = provider { null }
+        }
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
         }
     }
 
