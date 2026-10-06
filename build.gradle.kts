@@ -7,7 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
-version = "1.0.8"
+version = "1.0.9"
 
 group = "com.github.kiolk.typingplugin"
 
