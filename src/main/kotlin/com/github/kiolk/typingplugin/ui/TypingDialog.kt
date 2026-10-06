@@ -29,7 +29,10 @@ import javax.swing.text.StyleConstants
 import kotlin.math.max
 import kotlin.math.min
 
-class TypingDialog(private val project: Project, private val sourceCode: String) : DialogWrapper(project) {
+class TypingDialog(
+    private val project: Project,
+    private val sourceCode: String,
+) : DialogWrapper(project) {
     private var currentIndex = 0
     private var errorCount = 0
     private var startTime: Long = 0
@@ -226,9 +229,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         centerPanel.preferredSize = Dimension(preferredWidth, preferredHeight)
     }
 
-    override fun getPreferredFocusedComponent(): JComponent? {
-        return textPane
-    }
+    override fun getPreferredFocusedComponent(): JComponent? = textPane
 
     private fun handleTyping(charTyped: Char) {
         if (currentIndex >= sourceCode.length) return
