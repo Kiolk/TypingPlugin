@@ -29,7 +29,10 @@ import javax.swing.text.StyleConstants
 import kotlin.math.max
 import kotlin.math.min
 
-class TypingDialog(private val project: Project, private val sourceCode: String) : DialogWrapper(project) {
+class TypingDialog(
+    private val project: Project,
+    private val sourceCode: String,
+) : DialogWrapper(project) {
     private var currentIndex = 0
     private var errorCount = 0
     private var startTime: Long = 0
@@ -226,9 +229,7 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
         centerPanel.preferredSize = Dimension(preferredWidth, preferredHeight)
     }
 
-    override fun getPreferredFocusedComponent(): JComponent? {
-        return textPane
-    }
+    override fun getPreferredFocusedComponent(): JComponent? = textPane
 
     private fun handleTyping(charTyped: Char) {
         if (currentIndex >= sourceCode.length) return
@@ -320,22 +321,21 @@ class TypingDialog(private val project: Project, private val sourceCode: String)
 
             // Auto-scroll to keep cursor visible with padding of at least 3 characters
             try {
-                val rect = textPane.modelToView(currentIndex)
-                if (rect != null) {
-                    val metrics = textPane.getFontMetrics(textPane.font)
-                    // Calculate padding based on 3 widest characters ('W') and line height
-                    val horizontalPadding = metrics.stringWidth("WWW")
-                    val verticalPadding = metrics.height
+                val rect2D = textPane.modelToView2D(currentIndex)
+                val rect = Rectangle(rect2D.x.toInt(), rect2D.y.toInt(), rect2D.width.toInt(), rect2D.height.toInt())
+                val metrics = textPane.getFontMetrics(textPane.font)
+                // Calculate padding based on 3 widest characters ('W') and line height
+                val horizontalPadding = metrics.stringWidth("WWW")
+                val verticalPadding = metrics.height
 
-                    val paddedRect =
-                        Rectangle(
-                            rect.x - horizontalPadding,
-                            rect.y - verticalPadding,
-                            rect.width + 2 * horizontalPadding,
-                            rect.height + 2 * verticalPadding,
-                        )
-                    textPane.scrollRectToVisible(paddedRect)
-                }
+                val paddedRect =
+                    Rectangle(
+                        rect.x - horizontalPadding,
+                        rect.y - verticalPadding,
+                        rect.width + 2 * horizontalPadding,
+                        rect.height + 2 * verticalPadding,
+                    )
+                textPane.scrollRectToVisible(paddedRect)
             } catch (e: Exception) {
                 log.warn("Could not scroll to cursor", e)
             }

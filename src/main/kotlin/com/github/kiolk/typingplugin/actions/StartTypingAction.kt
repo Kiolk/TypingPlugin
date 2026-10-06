@@ -35,9 +35,7 @@ class StartTypingAction : AnAction() {
     fun createTypingDialog(
         project: Project,
         text: String,
-    ): TypingDialog {
-        return TypingDialog(project, text)
-    }
+    ): TypingDialog = TypingDialog(project, text)
 
     override fun update(e: AnActionEvent) {
         val editor = e.getData(CommonDataKeys.EDITOR)

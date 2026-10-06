@@ -14,8 +14,9 @@ import com.intellij.util.xmlb.XmlSerializerUtil
     name = "TypingStatistics",
     storages = [Storage("typingStatistics.xml")],
 )
-class TypingService(private val project: Project) :
-    PersistentStateComponent<TypingService.State> {
+class TypingService(
+    private val project: Project,
+) : PersistentStateComponent<TypingService.State> {
     data class State(
         var results: MutableList<TypingResult> = mutableListOf(),
         var fontSize: Int = 14,
